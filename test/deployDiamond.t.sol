@@ -9,7 +9,6 @@ import "../contracts/facets/OwnershipFacet.sol";
 import "../contracts/facets/ERC20Facet.sol";
 import "../contracts/facets/AuctionFacet.sol";
 
-import "../contracts/WOWToken.sol";
 import "forge-std/Test.sol";
 import "../contracts/Diamond.sol";
 
@@ -23,10 +22,8 @@ contract DiamondDeployer is Test, IDiamondCut {
     OwnershipFacet ownerF;
     ERC20Facet erc20Facet;
     AuctionFacet aFacet;
-    WOWToken wow;
 
 
-    AuctionFacet boundAuction;
 
     function setUp() public {
         //deploy facets
@@ -36,12 +33,11 @@ contract DiamondDeployer is Test, IDiamondCut {
         ownerF = new OwnershipFacet();
         erc20Facet = new ERC20Facet();
         aFacet = new AuctionFacet();
-        wow = new WOWToken(address(diamond));
 
         //upgrade diamond with facets
 
         //build cut struct
-        FacetCut[] memory cut = new FacetCut[](4);
+        FacetCut[] memory cut = new FacetCut[](3);
 
         cut[0] = (
             FacetCut({
@@ -58,15 +54,9 @@ contract DiamondDeployer is Test, IDiamondCut {
                 functionSelectors: generateSelectors("OwnershipFacet")
             })
         );
-        cut[2] = (
-            FacetCut({
-                facetAddress: address(aFacet),
-                action: FacetCutAction.Add,
-                functionSelectors: generateSelectors("AuctionFacet")
-            })
-        );
+      
 
-        cut[3] = (
+        cut[2] = (
             FacetCut({
                 facetAddress: address(erc20Facet),
                 action: FacetCutAction.Add,
@@ -78,7 +68,6 @@ contract DiamondDeployer is Test, IDiamondCut {
         IDiamondCut(address(diamond)).diamondCut(cut, address(0x0), "");
 
 
-        boundAuction = AuctionFacet(address(diamond));
     }
 
  

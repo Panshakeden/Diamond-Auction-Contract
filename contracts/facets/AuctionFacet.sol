@@ -23,30 +23,30 @@ contract AuctionFacet {
         require(!l.hasStarted, "started auctioning");
 
         l.hasStarted = true;
-        l.endAt = uint32(block.timestamp + 60);
+        l.endAt = uint256(block.timestamp + 60);
 
         IERC721(_nft).transferFrom(l.seller, address(this), l.nftId);
 
         emit Successful();
     }
 
-     function bid(address token, uint256 amount) external {
+     function bid( uint256 _amount) external {
         require(l.hasStarted, "Auction has not started yet");
         require(!l.hasEnded, "Auction has ended");
-        require(block.timestamp < l.endAt, "Auction has ended");
-        require(amount >= l.highestBid, "Bid must be greater than or equal to current highest bid");
+        require(block.timestamp < l.endAt, "Auction ended");
+        require(_amount >= l.highestBid, "Bid must be greater than or equal to current highest bid");
 
-        IERC20(token).transferFrom(msg.sender, address(this), amount);
+        LibAppStorage._transferFrom(msg.sender, address(this), _amount);
 
-        if (l.highestBider != address(0)) {
-            // IERC20(token).transfer(_highestBider, l.bids[_highestBider]);
-            // l.bids[_highestBider] = 0;
-        }
+        // if (l.highestBider != address(0)) {
+        //     // IERC20(token).transfer(_highestBider, l.bids[_highestBider]);
+        //     // l.bids[_highestBider] = 0;
+        // }
 
-        l.highestBid = amount;
+        l.highestBid = _amount;
         l.highestBider = msg.sender;
 
-        emit bidSuccessful(msg.sender, amount);
+        emit bidSuccessful(msg.sender, _amount);
     }
 
 
