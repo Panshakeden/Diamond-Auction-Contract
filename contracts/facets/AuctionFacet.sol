@@ -11,7 +11,7 @@ contract AuctionFacet {
 
     LibAppStorage.Layout public l;
 
-    event CreateActionSuccessful(address _tokenContractAddress, uint256 _tokenId);
+    event CreateActionSuccessful(address indexed tokenContractAddress, uint256 indexed tokenId);
     event bidSuccessful(address indexed sender,uint amount);
     event withdrawBid(address indexed bidder, uint amount);
     event transferBid(address highestBider,uint highestBid );
@@ -21,7 +21,7 @@ contract AuctionFacet {
 //         return l.hasStarted;
 //     }
 
-    function createAuction(address _tokenContractAddress, uint256 _tokenId,uint _starterPrice,uint _endAt) external {
+    function createAuction(address _tokenContractAddress, uint256 _tokenId,uint256 _starterPrice,uint256 _endAt) external {
         require(_tokenContractAddress!=address(0),"ADDRESS");
         require(INFT721(_tokenContractAddress).ownerOf(_tokenId)== msg.sender,"NOT_TOKEN_OWNER");
         INFT721(_tokenContractAddress).transferFrom(msg.sender, address(this), _tokenId);
@@ -33,6 +33,50 @@ contract AuctionFacet {
     }
 
    
+
+     function bidforNFt( uint256 auctionId, uint256 _amount) external {
+        require(msg.sender != address(0), "sorry can't access");
+        require(block.timestamp < l.auctions[auctionId].endAt, "Auction ended");
+        require(l.balances[msg.sender] > _amount, "sorry no much amount");
+        require(_amount >= l.auctions[auctionId].starterPrice,"you must outbid the highest");
+
+    //     if (l.highestBider != address(0)) {
+    //         // Calculate incentives and distribute fees
+    //         uint256 totalFee = _amount - l.highestBid;
+    //         uint256 burnFee = (totalFee * 2) / 100;
+    //         uint256 daoFee = (totalFee * 2) / 100;
+    //         uint256 outbidRefund = (totalFee * 3) / 100;
+    //         uint256 teamFee = (totalFee * 2) / 100;
+    //         uint256 lastinteractFee = totalFee / 100;
+
+    //         // Transfer fees to respective addresses
+    //         LibAppStorage._transferFrom(address(this), address(0), burnFee);
+    //         LibAppStorage._transferFrom(address(this), address(0), daoFee);
+    //         LibAppStorage._transferFrom(address(this),address(0), outbidRefund );
+    //          LibAppStorage._transferFrom(address(this),address(0), teamFee);
+    //         LibAppStorage._transferFrom(address(this),l.lastInteract, lastinteractFee);
+        }
+
+    //     LibAppStorage._transferFrom(msg.sender, address(this), _amount);
+
+
+    //     l.highestBid = _amount;
+    //     l.highestBider = msg.sender;
+
+    //     emit bidSuccessful(msg.sender, _amount);
+    // }
+
+
+    function endAuction(uint256 auctionId)external {
+        LibAppStorage.Auction storage auction = l.auctions[auctionId];
+        require(block.timestamp >= l.auctions[auctionId].endAt, "Auction ended");
+        
+       
+
+        INFT721(auction.tokenContract).transferFrom(address(this), msg.sender, auction.tokenId);
+
+    //  emit  transferBid(l.highestBider,l.highestBid );
+    }
 }
 
 
