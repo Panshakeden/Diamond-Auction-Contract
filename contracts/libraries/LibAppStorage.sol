@@ -19,7 +19,7 @@ library LibAppStorage {
 
         address lastInteract;
         Auction[] auctions;
-        mapping(uint => Bid) bids;
+        mapping(uint => Bid[]) bids;
     }
 
     struct Auction {
@@ -37,8 +37,8 @@ library LibAppStorage {
 
     struct Bid {
         address author;
-        uint price;
-        uint auctionId;
+        uint256 price;
+        uint256 auctionId;
     }
 
     function layoutStorage() internal pure returns (Layout storage l) {

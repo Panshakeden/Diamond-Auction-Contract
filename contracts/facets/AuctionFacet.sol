@@ -13,7 +13,8 @@ contract AuctionFacet {
 
     event CreateActionSuccessful(address indexed tokenContractAddress, uint256 indexed tokenId);
     event bidSuccessful(address indexed sender,uint amount);
-    event withdrawBid(address indexed bidder, uint amount);
+    event AuctionClosed(uint256 indexed auctionId, address author, address indexed winningBidder, uint256 BidAmount);
+
     event transferBid(address highestBider,uint highestBid );
 
 
@@ -34,11 +35,11 @@ contract AuctionFacet {
 
    
 
-     function bidforNFt( uint256 auctionId, uint256 _amount) external {
-        require(msg.sender != address(0), "sorry can't access");
-        require(block.timestamp < l.auctions[auctionId].endAt, "Auction ended");
-        require(l.balances[msg.sender] > _amount, "sorry no much amount");
-        require(_amount >= l.auctions[auctionId].starterPrice,"you must outbid the highest");
+    //  function bidforNFt( uint256 auctionId, uint256 _amount) external {
+    //     require(msg.sender != address(0), "sorry can't access");
+    //     require(block.timestamp < l.auctions[auctionId].endAt, "Auction ended");
+    //     require(l.balances[msg.sender] > _amount, "sorry no much amount");
+    //     require(_amount >= l.auctions[auctionId].starterPrice,"you must outbid the highest");
 
     //     if (l.highestBider != address(0)) {
     //         // Calculate incentives and distribute fees
@@ -55,7 +56,7 @@ contract AuctionFacet {
     //         LibAppStorage._transferFrom(address(this),address(0), outbidRefund );
     //          LibAppStorage._transferFrom(address(this),address(0), teamFee);
     //         LibAppStorage._transferFrom(address(this),l.lastInteract, lastinteractFee);
-        }
+        // }
 
     //     LibAppStorage._transferFrom(msg.sender, address(this), _amount);
 
@@ -67,16 +68,28 @@ contract AuctionFacet {
     // }
 
 
-    function endAuction(uint256 auctionId)external {
+    function auctionClosed(uint256 auctionId)external {
         LibAppStorage.Auction storage auction = l.auctions[auctionId];
         require(block.timestamp >= l.auctions[auctionId].endAt, "Auction ended");
         
-       
+        require(
+        msg.sender == auction.author || 
+        msg.sender == l.bids[auctionId][l.bids[auctionId].length - 1].author,
+        "YOU_DONT_HAVE_RIGHT");
 
-        INFT721(auction.tokenContract).transferFrom(address(this), msg.sender, auction.tokenId);
+          
+    uint256 BidderIndex= l.bids[auctionId].length - 1;
+    uint256 BidderPrice = l.bids[auctionId][BidderIndex].price;
+    LibAppStorage._transferFrom(address(this), auction.author, BidderPrice);
 
-    //  emit  transferBid(l.highestBider,l.highestBid );
-    }
+    address winningBidder = l.bids[auctionId][BidderIndex].author;
+
+    INFT721(auction.tokenContract).transferFrom(address(this), winningBidder, auction.tokenId);
+
+    // Emit an event indicating successful auction closure
+    emit AuctionClosed(auctionId, auction.author, winningBidder, BidderPrice);
+}
+    
 }
 
 
