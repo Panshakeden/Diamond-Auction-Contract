@@ -72,10 +72,3 @@ contract AuctionFacet {
 
 
 
-interface IWOW {
-    function mint(address _to, uint256 _amount) external;
-    function totalSupply() external returns (uint256);
-}
-
-
-
