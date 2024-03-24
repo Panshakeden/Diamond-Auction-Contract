@@ -6,8 +6,11 @@ import "../contracts/facets/DiamondCutFacet.sol";
 import "../contracts/facets/DiamondLoupeFacet.sol";
 import "../contracts/facets/OwnershipFacet.sol";
 
-import "../contracts/facets/ERC20Facet.sol";
+import "../contracts/facets/AuctionTokenFacet.sol";
 import "../contracts/facets/AuctionFacet.sol";
+import  "../contracts/facets/NFT.sol";
+import  "../contracts/interfaces/INFT721.sol";
+
 
 import "forge-std/Test.sol";
 import "../contracts/Diamond.sol";
@@ -20,10 +23,14 @@ contract DiamondDeployer is Test, IDiamondCut {
     DiamondCutFacet dCutFacet;
     DiamondLoupeFacet dLoupe;
     OwnershipFacet ownerF;
-    ERC20Facet erc20Facet;
+    AuctionTokenFacet erc20Facet;
     AuctionFacet aFacet;
+    NFT erc721Token;
 
 
+
+    AuctionFacet boundAuction;
+    AuctionTokenFacet boundToken;
 
     function setUp() public {
         //deploy facets
@@ -31,13 +38,14 @@ contract DiamondDeployer is Test, IDiamondCut {
         diamond = new Diamond(address(this), address(dCutFacet));
         dLoupe = new DiamondLoupeFacet();
         ownerF = new OwnershipFacet();
-        erc20Facet = new ERC20Facet();
+        erc20Facet = new AuctionTokenFacet();
         aFacet = new AuctionFacet();
+        erc721Token=new  NFT();
 
         //upgrade diamond with facets
 
         //build cut struct
-        FacetCut[] memory cut = new FacetCut[](3);
+        FacetCut[] memory cut = new FacetCut[](4);
 
         cut[0] = (
             FacetCut({
@@ -54,13 +62,19 @@ contract DiamondDeployer is Test, IDiamondCut {
                 functionSelectors: generateSelectors("OwnershipFacet")
             })
         );
-      
-
         cut[2] = (
+            FacetCut({
+                facetAddress: address(aFacet),
+                action: FacetCutAction.Add,
+                functionSelectors: generateSelectors("AuctionFacet")
+            })
+        );
+
+        cut[3] = (
             FacetCut({
                 facetAddress: address(erc20Facet),
                 action: FacetCutAction.Add,
-                functionSelectors: generateSelectors("ERC20Facet")
+                functionSelectors: generateSelectors("AuctionTokenFacet")
             })
         );
 
@@ -68,6 +82,8 @@ contract DiamondDeployer is Test, IDiamondCut {
         IDiamondCut(address(diamond)).diamondCut(cut, address(0x0), "");
 
 
+        boundAuction = AuctionFacet(address(diamond));
+        boundToken = AuctionTokenFacet(address(diamond));
     }
 
  

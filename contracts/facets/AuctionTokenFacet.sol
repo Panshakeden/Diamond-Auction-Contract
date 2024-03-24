@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {LibAppStorage} from "../libraries/LibAppStorage.sol";
 
-contract ERC20Facet {
+contract AuctionTokenFacet{
     LibAppStorage.Layout internal l;
     event Approval(
         address indexed _owner,

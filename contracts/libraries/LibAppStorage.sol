@@ -26,6 +26,7 @@ library LibAppStorage {
     address  highestBider;
     // uint256  startingBid;
     uint256  endAt;
+    address  lastInteract;
 
     mapping(address => uint256) bids;
 

@@ -1,6 +1,6 @@
 pragma solidity ^0.8.20;
 
-interface IERC721 {
+interface INFT721 {
     function transferFrom(
         address from,
         address to,
