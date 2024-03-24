@@ -33,7 +33,7 @@ contract DiamondDeployer is Test, IDiamondCut {
     AuctionFacet boundAuction;
     AuctionTokenFacet boundToken;
 
-      address constant SELLER = address(0x5E11E7);
+    //   address constant SELLER = address(0x5E11E);
 
     function setUp() public {
         //deploy facets
@@ -90,13 +90,13 @@ contract DiamondDeployer is Test, IDiamondCut {
     }
 
 
-    function testStartAuction() public {
-    vm.startPrank(SELLER);
-    aFacet.startAuction(address(0x123), 1);
-    assertEq(aFacet.getStarted() , true);
-    // assertEq(aFacet.aucEnded(), block.timestamp + 60, "End time is incorrect");
-    vm.stopPrank();
-}
+//     function testStartAuction() public {
+//     vm.startPrank(SELLER);
+//     aFacet.startAuction(address(), 1);
+//     assertEq(aFacet.getStarted() , true);
+//     // assertEq(aFacet.aucEnded(), block.timestamp + 60, "End time is incorrect");
+//     vm.stopPrank();
+// }
  
 
 

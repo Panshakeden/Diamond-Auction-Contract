@@ -1,13 +1,12 @@
 pragma solidity ^0.8.0;
 
 library LibAppStorage {
-
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
-    struct UserStake {
-        uint256 stakedTime;
-        uint256 amount;
-        uint256 allocatedPoints;
-    }
+    // struct UserStake {
+    //     uint256 stakedTime;
+    //     uint256 amount;
+    //     uint256 allocatedPoints;
+    // }
     struct Layout {
         //ERC20
         string name;
@@ -17,19 +16,29 @@ library LibAppStorage {
         mapping(address => uint256) balances;
         mapping(address => mapping(address => uint256)) allowances;
         //AUCTION
-    address nft;
-    uint256  nftId;
-    bool  hasStarted;
-    address seller;
-    bool  hasEnded;
-    uint256  highestBid;
-    address  highestBider;
-    // uint256  startingBid;
-    uint256  endAt;
-    address  lastInteract;
 
-    mapping(address => uint256) bids;
+        address lastInteract;
+        Auction[] auctions;
+        mapping(uint => Bid) bids;
+    }
 
+    struct Auction {
+        uint id;
+        address tokenContract;
+        uint256 tokenId;
+        // bool  hasStarted;
+        address author;
+        // bool  hasEnded;
+        // uint256  highestBid;
+        // address  highestBider;
+        uint256 starterPrice;
+        uint256 endAt;
+    }
+
+    struct Bid {
+        address author;
+        uint price;
+        uint auctionId;
     }
 
     function layoutStorage() internal pure returns (Layout storage l) {

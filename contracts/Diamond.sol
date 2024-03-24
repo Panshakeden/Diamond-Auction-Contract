@@ -30,10 +30,10 @@ contract Diamond {
         LibDiamond.diamondCut(cut, address(0), "");
     }
 
-    function setRewardToken(address _token) public {
-        LibDiamond.enforceIsContractOwner();
-        l.nft = _token;
-    }
+    // function setRewardToken(address _token) public {
+    //     LibDiamond.enforceIsContractOwner();
+    //     l.nft = _token;
+    // }
 
     // Find facet for function that is called and execute the
     // function if a facet is found and return any value.
