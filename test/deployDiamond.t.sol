@@ -19,6 +19,7 @@ import "../contracts/libraries/LibAppStorage.sol";
 
 contract DiamondDeployer is Test, IDiamondCut {
     //contract types of facets to be deployed
+    
     Diamond diamond;
     DiamondCutFacet dCutFacet;
     DiamondLoupeFacet dLoupe;
@@ -31,6 +32,8 @@ contract DiamondDeployer is Test, IDiamondCut {
 
     AuctionFacet boundAuction;
     AuctionTokenFacet boundToken;
+
+      address constant SELLER = address(0x5E11E7);
 
     function setUp() public {
         //deploy facets
@@ -86,6 +89,14 @@ contract DiamondDeployer is Test, IDiamondCut {
         boundToken = AuctionTokenFacet(address(diamond));
     }
 
+
+    function testStartAuction() public {
+    vm.startPrank(SELLER);
+    aFacet.startAuction(address(0x123), 1);
+    assertEq(aFacet.getStarted() , true);
+    // assertEq(aFacet.aucEnded(), block.timestamp + 60, "End time is incorrect");
+    vm.stopPrank();
+}
  
 
 
@@ -99,6 +110,8 @@ contract DiamondDeployer is Test, IDiamondCut {
         bytes memory res = vm.ffi(cmd);
         selectors = abi.decode(res, (bytes4[]));
     }
+
+
 
     function mkaddr(string memory name) public returns (address) {
         address addr = address(

@@ -10,13 +10,17 @@ import{IERC20} from "../interfaces/IERC20.sol";
 
 contract AuctionFacet {
 
-    LibAppStorage.Layout internal l;
+    LibAppStorage.Layout public l;
 
     event Successful();
     event bidSuccessful(address indexed sender,uint amount);
     event withdrawBid(address indexed bidder, uint amount);
     event transferBid(address highestBider,uint highestBid );
 
+
+   function getStarted() view external returns(bool) {
+        return l.hasStarted;
+    }
 
     function startAuction(address _nft, uint256 _tokenId) external {
         require(l.seller == msg.sender, "you are not the owner");
@@ -34,6 +38,8 @@ contract AuctionFacet {
 
         emit Successful();
     }
+
+   
 
      function bidNFT( uint256 _amount) external {
         require(l.hasStarted, "Auction has not started yet");
