@@ -112,8 +112,18 @@ contract DiamondDeployer is Test, IDiamondCut {
         assertEq(balance, 100_000_000e18);
     }
 
-  function testFailAddressZero() external {
-     boundAuction.createAuction(address(0), 1, 1e18, 1 days);  
+    function testFailAddressZero() external {
+     boundAuction.createAuction(address(0), 1, 1e18, 1 days);
+
+     console.log("Address zero can't create auction");  
+  }
+
+  function testFailIfNotOwner()external{
+    switchSigner(A);
+    erc721Token.mint();
+    switchSigner(B);
+    boundAuction.createAuction(address(erc721Token), 1, 1e18, 1 days);
+
   }
 
 
