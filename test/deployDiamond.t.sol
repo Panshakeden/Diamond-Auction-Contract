@@ -29,11 +29,14 @@ contract DiamondDeployer is Test, IDiamondCut {
     NFT erc721Token;
 
 
+     address A =  address(0xa);
+     address B= address(0xb);
+     address C= address(0xc);
+     address D= address(0xd);
 
     AuctionFacet boundAuction;
     AuctionTokenFacet boundToken;
 
-    //   address constant SELLER = address(0x5E11E);
 
     function setUp() public {
         //deploy facets
@@ -84,20 +87,31 @@ contract DiamondDeployer is Test, IDiamondCut {
         //upgrade diamond
         IDiamondCut(address(diamond)).diamondCut(cut, address(0x0), "");
 
+        A = mkaddr("bidder a");
+        B = mkaddr("bidder b");
+        C = mkaddr("bidder c");
+        D = mkaddr("bidder d");
+
+        //mint test tokens
+        AuctionTokenFacet(address(diamond)).mintTo(A);
+        AuctionTokenFacet(address(diamond)).mintTo(B);
+        AuctionTokenFacet(address(diamond)).mintTo(C);
+
 
         boundAuction = AuctionFacet(address(diamond));
         boundToken = AuctionTokenFacet(address(diamond));
     }
 
+    function testMintedUsers()external {
+        uint256 balance = boundToken.balanceOf(A);
+        assertEq(balance, 100_000_000e18);
+    }
 
-//     function testStartAuction() public {
-//     vm.startPrank(SELLER);
-//     aFacet.startAuction(address(), 1);
-//     assertEq(aFacet.getStarted() , true);
-//     // assertEq(aFacet.aucEnded(), block.timestamp + 60, "End time is incorrect");
-//     vm.stopPrank();
-// }
- 
+      function testFailMintedUsers()external {
+        uint256 balance = boundToken.balanceOf(D);
+        assertEq(balance, 100_000_000e18);
+    }
+
 
 
     function generateSelectors(

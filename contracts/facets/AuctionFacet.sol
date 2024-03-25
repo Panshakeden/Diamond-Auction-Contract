@@ -12,7 +12,6 @@ contract AuctionFacet {
     LibAppStorage.Layout public l;
 
     event CreateActionSuccessful(address indexed tokenContractAddress, uint256 indexed tokenId);
-    event bidSuccessful(address indexed sender,uint amount);
     event AuctionClosed(uint256 indexed auctionId, address author, address indexed winningBidder, uint256 BidAmount);
 
     event transferBid(address highestBider,uint highestBid );
@@ -163,6 +162,18 @@ contract AuctionFacet {
     // Emit an event indicating successful auction closure
     emit AuctionClosed(auctionId, auction.author, winningBidder, BidderPrice);
 }
+
+   function getAuction(
+        uint auctionId
+    ) external view returns (LibAppStorage.Auction memory) {
+        return l.auctions[auctionId];
+    }
+
+    function getBid(
+        uint auctionId
+    ) external view returns (LibAppStorage.Bid[] memory) {
+        return l.bids[auctionId];
+    }
     
 }
 
