@@ -35,7 +35,81 @@ contract AuctionFacet {
 
    
 
-    //  function bidforNFt( uint256 auctionId, uint256 _amount) external {
+ // Function to calculate the percentage cut based on the provided amount
+    function calculatePercentageCut(uint amount) internal pure returns (uint) {
+        return (amount * 10) / 100; // 10% cut
+    }
+
+    // Function for placing a bid in an auction and distributing tax
+    function bidWithToken(
+        uint auctionId,
+        uint price,
+        address _outbidBidder,
+        address _lastInteractor
+    ) external {
+        require(l.balances[msg.sender] > price, "INSUFFICIENT_BALANCE");
+
+        uint percentageCut;
+
+        if (l.bids[auctionId].length == 0) {
+            require(price >= l.auctions[auctionId].starterPrice, "STARTING_PRICE_MUST_BE_GREATER");
+
+            percentageCut = calculatePercentageCut(price);
+            distributeFee(
+                percentageCut,
+                _outbidBidder,
+                _lastInteractor
+            );
+
+            LibAppStorage.Bid memory _newBid = LibAppStorage.Bid({
+                author: msg.sender,
+                amount: price - percentageCut,
+                auctionId: auctionId
+            });
+            l.bids[auctionId].push(_newBid);
+        } else {
+            require(price > l.bids[auctionId][l.bids[auctionId].length - 1].amount, "PRICE_MUST_BE_GREATER_THAN_LAST_BIDDED");
+
+            percentageCut = calculatePercentageCut(price - l.bids[auctionId][l.bids[auctionId].length - 1].amount);
+            distributeFee(
+                percentageCut,
+                l.bids[auctionId][l.bids[auctionId].length - 1].author,
+                _lastInteractor
+            );
+
+            LibAppStorage.Bid memory _newBid = LibAppStorage.Bid({
+                author: msg.sender,
+                amount: price - percentageCut,
+                auctionId: auctionId
+            });
+            l.bids[auctionId].push(_newBid);
+        }
+    }
+
+    // Function to distribute the tax according to the breakdown
+    function distributeFee(
+        uint _fee,
+        address _outbidBidder,
+        address _lastInteractor
+    ) internal {
+        // Calculate each portion of the tax
+        uint toBurn = (_fee * 20) / 100; // 2% burned
+        uint toDAO = (_fee * 20) / 100; // 2% to DAO Wallet
+        uint toOutbidBidder = (_fee * 30) / 100; // 3% back to the outbid bidder
+        uint toTeam = (_fee * 20) / 100; // 2% to Team Wallet
+        uint toInteractor = (_fee * 10) / 100; // 1% to Interactor Wallet
+
+        // Transfer the respective amounts to the specified wallets
+        LibAppStorage._transferFrom(address(this), address(0x84c888Eed28F6587B6005CA00e3a2FA9bb40D11a), toDAO);
+        LibAppStorage._transferFrom(address(this), _outbidBidder, toOutbidBidder);
+        LibAppStorage._transferFrom(address(this), address(0), toTeam);
+        LibAppStorage._transferFrom(address(this), address(0), toBurn);
+        LibAppStorage._transferFrom(address(this), _lastInteractor, toInteractor);
+    }
+
+
+
+
     //     require(msg.sender != address(0), "sorry can't access");
     //     require(block.timestamp < l.auctions[auctionId].endAt, "Auction ended");
     //     require(l.balances[msg.sender] > _amount, "sorry no much amount");
@@ -65,7 +139,7 @@ contract AuctionFacet {
     //     l.highestBider = msg.sender;
 
     //     emit bidSuccessful(msg.sender, _amount);
-    // }
+    
 
 
     function auctionClosed(uint256 auctionId)external {
@@ -75,11 +149,11 @@ contract AuctionFacet {
         require(
         msg.sender == auction.author || 
         msg.sender == l.bids[auctionId][l.bids[auctionId].length - 1].author,
-        "YOU_DONT_HAVE_RIGHT");
+        "You can't claim");
 
           
     uint256 BidderIndex= l.bids[auctionId].length - 1;
-    uint256 BidderPrice = l.bids[auctionId][BidderIndex].price;
+    uint256 BidderPrice = l.bids[auctionId][BidderIndex].amount;
     LibAppStorage._transferFrom(address(this), auction.author, BidderPrice);
 
     address winningBidder = l.bids[auctionId][BidderIndex].author;

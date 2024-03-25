@@ -37,7 +37,7 @@ library LibAppStorage {
 
     struct Bid {
         address author;
-        uint256 price;
+        uint256 amount;
         uint256 auctionId;
     }
 
