@@ -112,6 +112,10 @@ contract DiamondDeployer is Test, IDiamondCut {
         assertEq(balance, 100_000_000e18);
     }
 
+  function testFailAddressZero() external {
+     boundAuction.createAuction(address(0), 1, 1e18, 1 days);  
+  }
+
 
 
     function generateSelectors(
